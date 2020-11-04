@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-4relative %-5level %logger - %msg %mdc%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="consoleAppender"/>
+    </root>
+
+    <springProfile name="apm">
+<!--        <appender name="rollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--            <file>/var/apps/log/books.log</file>-->
+<!--            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--                <fileNamePattern>books-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--                <maxFileSize>100MB</maxFileSize>-->
+<!--                <maxHistory>60</maxHistory>-->
+<!--                <totalSizeCap>2GB</totalSizeCap>-->
+<!--            </rollingPolicy>-->
+<!--            &lt;!&ndash; encoder is required &ndash;&gt;-->
+<!--            <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
+<!--                <customFields>{"applicationName":"book-ms"}</customFields>-->
+<!--            </encoder>-->
+<!--        </appender>-->
+        <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>elk-logstash:5044</destination>
+
+            <!-- encoder is required -->
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"applicationName":"author-ms"}</customFields>
+            </encoder>
+        </appender>
+
+
+        <root level="INFO">
+            <appender-ref ref="stash" />
+            <appender-ref ref="consoleAppender"/>
+        </root>
+    </springProfile>
+
+    <logger name="org.springframework.web" level="DEBUG"></logger>
+    <logger name="org.springframework.security" level="DEBUG"></logger>
+
+</configuration>
